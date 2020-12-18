@@ -1,7 +1,7 @@
 // Embed PDF Pages - Adobe Photoshop Script
 // Description: place PDF pages and TIFF/JPEG files as smart objects into their corresponding source file
 // Requirements: Adobe Photoshop CS3, or higher
-// Version: 0.14.1, 14/Dec/2020 //@@@
+// Version: 0.14.0, 14/Oct/2020 //@@@
 // Author: Trevor Morris (trevor@morris-photographics.com)
 // Website: http://morris-photographics.com/
 // ============================================================================
@@ -197,8 +197,8 @@ function main() {
 
 		// add text layer
 		if (prefs.textContents.length) {
-			textLayer = createTextLayer(doc, prefs.textContents, [25, 227, 102], 0, 45);
-//			centerLayer(doc, textLayer);
+			textLayer = createTextLayer(doc, prefs.textContents, [25, 227, 102], 50, 50);
+			centerLayer(doc, textLayer);
 		}
 
 		// embed metadata (keywords)
@@ -787,149 +787,88 @@ function centerLayer(doc, layer) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// createTextLayer - create text box layer
+// createTextLayer - create text layer
 ///////////////////////////////////////////////////////////////////////////////
 function createTextLayer(doc, contents, color, x, y) {
 
-	// local variables
-	// Note: convert dimensions to points for later versions of Photoshop
-	var docRes = doc.resolution;
-	var docWidth = Number(doc.width) / docRes * 72;
-	var docHeight = Number(doc.height) / docRes * 72;
-
-	// layer reference
-	var ref1 = new ActionReference();
-	ref1.putClass(cTID('TxLr'));
-
 	// action descriptor
 	var desc1 = new ActionDescriptor();
-	desc1.putReference(cTID('null'), ref1);
-
-	// text layer descriptor
 	var desc2 = new ActionDescriptor();
 	desc2.putString(cTID('Txt '), contents);
-/*
-	// text warp
-	var desc3 = new ActionDescriptor();
-	desc3.putEnumerated(sTID('warpStyle'), sTID('warpStyle'), sTID('warpNone'));
-	desc3.putDouble(sTID('warpValue'), 0);
-	desc3.putDouble(sTID('warpPerspective'), 0);
-	desc3.putDouble(sTID('warpPerspectiveOther'), 0);
-	desc3.putEnumerated(sTID('warpRotate'), cTID('Ornt'), cTID('Hrzn'));
-	desc2.putObject(sTID('warp'), sTID('warp'), desc3);
-*/
+
+	// layer reference
+	var ref = new ActionReference();
+	ref.putClass(cTID('TxLr'));
+	desc1.putReference(cTID('null'), ref);
+
 	// position (percentage)
 	var desc4 = new ActionDescriptor();
-//	desc4.putUnitDouble(cTID('Hrzn'), cTID('#Prc'), x);
-	desc4.putUnitDouble(cTID('Hrzn'), cTID('#Prc'), x + 5); // 5% from left margin
+	desc4.putUnitDouble(cTID('Hrzn'), cTID('#Prc'), x);
 	desc4.putUnitDouble(cTID('Vrtc'), cTID('#Prc'), y);
 	desc2.putObject(cTID('TxtC'), cTID('Pnt '), desc4);
 
 	desc2.putEnumerated(sTID('textGridding'), sTID('textGridding'), cTID('None'));
 	desc2.putEnumerated(cTID('Ornt'), cTID('Ornt'), cTID('Hrzn'));
 	desc2.putEnumerated(cTID('AntA'), cTID('Annt'), sTID('antiAliasSharp'));
-/*
-	var desc5 = new ActionDescriptor();
-	desc5.putUnitDouble(cTID('Left'), cTID('Pnt '), 0);
-	desc5.putUnitDouble(cTID('Top '), cTID('Pnt '), -1.290130);
-	desc5.putUnitDouble(cTID('Rght'), cTID('Pnt '), 800);
-	desc5.putUnitDouble(cTID('Btom'), cTID('Pnt '), 488);
-	desc2.putObject(sTID('bounds'), sTID('bounds'), desc5);
-
-	var desc6 = new ActionDescriptor();
-	desc6.putUnitDouble(cTID('Left'), cTID('Pnt '), 377.663025);
-	desc6.putUnitDouble(cTID('Top '), cTID('Pnt '), -0.417435);
-	desc6.putUnitDouble(cTID('Rght'), cTID('Pnt '), 423.575989);
-	desc6.putUnitDouble(cTID('Btom'), cTID('Pnt '), 6.842453);
-	desc2.putObject(sTID('boundingBox'), sTID('boundingBox'), desc6);
-*/
-	// text box
-	var desc7 = new ActionDescriptor();
-	desc7.putEnumerated(cTID('TEXT'), cTID('TEXT'), sTID('box'));
-	desc7.putEnumerated(cTID('Ornt'), cTID('Ornt'), cTID('Hrzn'));
-/*
-	var desc8 = new ActionDescriptor();
-	desc8.putDouble(sTID('xx'), 1);
-	desc8.putDouble(sTID('xy'), 0);
-	desc8.putDouble(sTID('yx'), 0);
-	desc8.putDouble(sTID('yy'), 1);
-	desc8.putDouble(sTID('tx'), 0);
-	desc8.putDouble(sTID('ty'), 0);
-	desc7.putObject(cTID('Trnf'), cTID('Trnf'), desc8);
-
-	desc7.putInteger(sTID('rowCount'), 1);
-	desc7.putInteger(sTID('columnCount'), 1);
-	desc7.putBoolean(sTID('rowMajorOrder'), true);
-	desc7.putUnitDouble(sTID('rowGutter'), cTID('Pnt '), 0);
-	desc7.putUnitDouble(sTID('columnGutter'), cTID('Pnt '), 0);
-	desc7.putUnitDouble(cTID('Spcn'), cTID('Pnt '), 0);
-	desc7.putEnumerated(sTID('frameBaselineAlignment'), sTID('frameBaselineAlignment'), sTID('alignByAscent'));
-	desc7.putUnitDouble(sTID('firstBaselineMinimum'), cTID('Pnt '), 0);
-*/
-	// text box bounds/dimensions (percentage)
-	// Note: these values are measured in percent for earlier versions of Photoshop,
-	// but they're measured in points for later versions (assuming ruler units of pixels)
-	var desc9 = new ActionDescriptor();
-	desc9.putDouble(cTID('Top '), 0);
-//	desc9.putDouble(cTID('Left'), 0.05 * docWidth); // 5% margin
-	desc9.putDouble(cTID('Left'), 0); // 5% margin
-	desc9.putDouble(cTID('Btom'), docHeight * (1 - y / 100)); // remainder of doc height
-//	desc9.putDouble(cTID('Rght'), 0.95 * docWidth); // 5% margin
-	desc9.putDouble(cTID('Rght'), 0.9 * docWidth); // 5% margin
-	desc7.putObject(sTID('bounds'), cTID('Rctn'), desc9);
 
 	var list1 = new ActionList();
-	list1.putObject(sTID('textShape'), desc7);
-	desc2.putList(sTID('textShape'), list1);
+
+	var desc5 = new ActionDescriptor();
+	desc5.putInteger(cTID('From'), 0);
+	desc5.putInteger(cTID('T   '), cTID('null')); // cover full range of text
 
 	// font properties
-	var desc11 = new ActionDescriptor();
-//	desc11.putBoolean(sTID('styleSheetHasParent'), true);
-	desc11.putString(sTID('fontPostScriptName'), 'Verdana');
-	desc11.putString(cTID('FntN'), 'Verdana');
-	desc11.putString(cTID('FntS'), 'Regular');
-	desc11.putInteger(cTID('Scrp'), 0);
-	desc11.putInteger(cTID('FntT'), 1);
-	desc11.putUnitDouble(cTID('Sz  '), cTID('Pnt '), 50);
-//	desc11.putEnumerated(sTID('digitSet'), sTID('digitSet'), sTID('defaultDigits'));
-//	desc11.putUnitDouble(sTID('markYDistFromBaseline'), cTID('Pnt '), 24);
+	var desc6 = new ActionDescriptor();
+	desc6.putString(sTID('fontPostScriptName'), 'Verdana');
+	desc6.putString(cTID('FntN'), 'Verdana');
+	desc6.putString(cTID('FntS'), 'Regular');
+	desc6.putInteger(cTID('Scrp'), 0);
+	desc6.putInteger(cTID('FntT'), 1);
+	desc6.putUnitDouble(cTID('Sz  '), cTID('#Pnt'), 50);
+	desc6.putDouble(cTID('HrzS'), 100);
+	desc6.putDouble(cTID('VrtS'), 100);
+
+/*
+	// additional font properties
+	desc6.putBoolean(sTID('syntheticBold'), false);
+	desc6.putBoolean(sTID('syntheticItalic'), false);
+	desc6.putBoolean(sTID('autoLeading'), true);
+	desc6.putInteger(cTID('Trck'), 0);
+	desc6.putUnitDouble(cTID('Bsln'), cTID('#Pnt'), 0);
+	desc6.putDouble(sTID('characterRotation'), 0);
+	desc6.putEnumerated(cTID('AtKr'), cTID('AtKr'), sTID('metricsKern'));
+	desc6.putEnumerated(sTID('fontCaps'), sTID('fontCaps'), cTID('Nrml'));
+	desc6.putEnumerated(sTID('baseline'), sTID('baseline'), cTID('Nrml'));
+	desc6.putEnumerated(sTID('otbaseline'), sTID('otbaseline'), cTID('Nrml'));
+	desc6.putEnumerated(sTID('strikethrough'), sTID('strikethrough'), sTID('strikethroughOff'));
+	desc6.putEnumerated(cTID('Undl'), cTID('Undl'), sTID('underlineOff'));
+	desc6.putUnitDouble(sTID('underlineOffset'), cTID('#Pnt'), 0);
+*/
 
 	// color
-	var desc12 = new ActionDescriptor();
-	desc12.putDouble(cTID('Rd  '), color[0]);
-	desc12.putDouble(cTID('Grn '), color[1]);
-	desc12.putDouble(cTID('Bl  '), color[2]);
-	desc11.putObject(cTID('Clr '), cTID('RGBC'), desc12);
+	var desc7 = new ActionDescriptor();
+	desc7.putDouble(cTID('Rd  '), color[0]);
+	desc7.putDouble(cTID('Grn '), color[1]);
+	desc7.putDouble(cTID('Bl  '), color[2]);
+	desc6.putObject(cTID('Clr '), cTID('RGBC'), desc7);
 
-	var desc10 = new ActionDescriptor();
-	desc10.putInteger(cTID('From'), 0);
-	desc10.putInteger(cTID('T   '), cTID('null')); // cover full range of text
-	desc10.putObject(cTID('TxtS'), cTID('TxtS'), desc11);
-
-	var list2 = new ActionList();
-	list2.putObject(cTID('Txtt'), desc10);
-	desc2.putList(cTID('Txtt'), list2);
-
-	// begin alignment
-	var desc13 = new ActionDescriptor();
-	desc13.putInteger(cTID('From'), 0);
-	desc13.putInteger(cTID('T   '), cTID('null')); // cover full range of text
-
-	// alignment: center
-	var desc14 = new ActionDescriptor();
-//	desc14.putBoolean(sTID('styleSheetHasParent'), true);
-	desc14.putEnumerated(cTID('Algn'), cTID('Alg '), cTID('Cntr'));
-//	desc14.putEnumerated(sTID('burasagari'), sTID('burasagari'), sTID('burasagariStandard'));
-//	desc14.putBoolean(sTID('textEveryLineComposer'), true);
-	desc13.putObject(sTID('paragraphStyle'), sTID('paragraphStyle'), desc14);
-
-	var list3 = new ActionList();
-	list3.putObject(sTID('paragraphStyleRange'), desc13);
-	desc2.putList(sTID('paragraphStyleRange'), list3);
-	// end alignment
+	desc5.putObject(cTID('TxtS'), cTID('TxtS'), desc6);
+	list1.putObject(cTID('Txtt'), desc5);
+	desc2.putList(cTID('Txtt'), list1);
 /*
-	var list4 = new ActionList();
-	desc2.putList(sTID('kerningRange'), list4);
+	// begin alignment
+	var list2 = new ActionList();
+	var desc8 = new ActionDescriptor();
+	desc8.putInteger(cTID('From'), 0);
+	desc8.putInteger(cTID('T   '), cTID('null')); // cover full range of text
+
+	var desc9 = new ActionDescriptor();
+	desc9.putEnumerated(cTID('Algn'), cTID('Alg '), cTID(alignment));
+
+	desc8.putObject(sTID('paragraphStyle'), sTID('paragraphStyle'), desc9);
+	list2.putObject(sTID('paragraphStyleRange'), desc8);
+	desc2.putList(sTID('paragraphStyleRange'), list2);
+	// end alignment
 */
 	desc1.putObject(cTID('Usng'), cTID('TxLr'), desc2);
 
